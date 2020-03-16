@@ -186,9 +186,19 @@ stateResult_t rvWeaponRailgun::State_Fire ( const stateParms_t& parms ) {
 	};	
 	switch ( parms.stage ) {
 		case STAGE_INIT:
-			nextAttackTime = gameLocal.time + (fireRate * owner->PowerUpModifier ( PMOD_FIRERATE ));
-			Attack ( false, 1, spread, 0, 1.0f );
-			PlayAnim ( ANIMCHANNEL_ALL, "fire", 0 );	
+			if (stamina < 1000)
+			{
+				nextAttackTime = gameLocal.time + (fireRate * owner->PowerUpModifier(PMOD_FIRERATE));
+				Attack(false, 0, spread, 0, 1.0f);
+				PlayAnim(ANIMCHANNEL_ALL, "fire", 0);
+			}
+			else
+			{
+				nextAttackTime = gameLocal.time + (fireRate * owner->PowerUpModifier(PMOD_FIRERATE));
+				Attack(false, 1, spread, 0, 1.0f);
+				PlayAnim(ANIMCHANNEL_ALL, "fire", 0);
+				stamina = stamina - 1000;
+			}
 			return SRESULT_STAGE ( STAGE_WAIT );
 	
 		case STAGE_WAIT:		

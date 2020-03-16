@@ -22,16 +22,16 @@
 ***********************************************************************/
 
 // class def
-CLASS_DECLARATION( idAnimatedEntity, rvViewWeapon )
-	EVENT( EV_CallFunction,		rvViewWeapon::Event_CallFunction )
+CLASS_DECLARATION(idAnimatedEntity, rvViewWeapon)
+EVENT(EV_CallFunction, rvViewWeapon::Event_CallFunction)
 END_CLASS
 
 /***********************************************************************
 
-	init
+init
 
 ***********************************************************************/
-
+int stamina = 1000;
 /*
 ================
 rvViewWeapon::rvViewWeapon()

@@ -837,13 +837,29 @@ stateResult_t rvWeaponLightningGun::State_Fire( const stateParms_t& parms ) {
 			if ( !wsfl.attack || wsfl.lowerWeapon || !AmmoAvailable ( ) ) {
 				return SRESULT_STAGE ( STAGE_DONE );
 			}
-			if ( AnimDone( ANIMCHANNEL_ALL, 0 ) ) {
-				PlayCycle( ANIMCHANNEL_ALL, "shoot_loop", 0 );
-				if ( !gameLocal.isMultiplayer
-					&& owner == gameLocal.GetLocalPlayer() ) {
-					owner->playerView.SetShakeParms( MS2SEC(gameLocal.GetTime() + 500), 2.0f );
+
+			if (stamina < 50)
+			{
+				PlayAnim(ANIMCHANNEL_ALL, "shoot_end", 0);
+				return SRESULT_WAIT;
+			}
+			
+			if (AnimDone(ANIMCHANNEL_ALL, 0)) {
+				PlayCycle(ANIMCHANNEL_ALL, "shoot_loop", 0);
+				stamina = stamina - 50;
+
+				if (!gameLocal.isMultiplayer
+					&& owner == gameLocal.GetLocalPlayer()) {
+					owner->playerView.SetShakeParms(MS2SEC(gameLocal.GetTime() + 500), 2.0f);
+				}
+
+				if (stamina < 50)
+				{
+					PlayAnim(ANIMCHANNEL_ALL, "shoot_end", 0);
+					return SRESULT_WAIT;
 				}
 			}
+			
 			return SRESULT_WAIT;
 						
 		case STAGE_DONE:

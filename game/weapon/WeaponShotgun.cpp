@@ -163,11 +163,37 @@ stateResult_t rvWeaponShotgun::State_Fire( const stateParms_t& parms ) {
 	};	
 	switch ( parms.stage ) {
 		case STAGE_INIT:
-			nextAttackTime = gameLocal.time + (fireRate * owner->PowerUpModifier ( PMOD_FIRERATE ));
-			Attack( false, hitscans, spread, 0, 1.0f );
-			PlayAnim( ANIMCHANNEL_ALL, "fire", 0 );	
-			return SRESULT_STAGE( STAGE_WAIT );
-	
+			if (stamina < 250)
+			{
+				nextAttackTime = gameLocal.time + (fireRate * owner->PowerUpModifier(PMOD_FIRERATE));
+				Attack(false, 0, spread, 0, 1.0f);
+				PlayAnim(ANIMCHANNEL_ALL, "fire", 0);
+			}
+			else
+			{
+				nextAttackTime = gameLocal.time + (fireRate * owner->PowerUpModifier(PMOD_FIRERATE));
+				Attack(false, hitscans, spread, 0, 1.0f);
+				PlayAnim(ANIMCHANNEL_ALL, "fire", 0);
+
+				idPlayer* player;
+				player = gameLocal.GetLocalPlayer();
+
+				idDict                test;
+				float                 yaw = gameLocal.GetLocalPlayer()->viewAngles.yaw;
+				test.Set("classname", "item_health_mega");
+				test.Set("angle", va("%f", yaw + 180));
+
+
+				idVec3 org = player->GetPhysics()->GetOrigin() + idAngles(0, yaw, 0).ToForward() * 80 + idVec3(0, 0, 1);
+				test.Set("origin", org.ToString());
+
+				idEntity *heal = NULL;
+
+				gameLocal.SpawnEntityDef(test, &heal);
+
+				stamina = stamina - 250;
+			}
+			return SRESULT_STAGE(STAGE_WAIT);
 		case STAGE_WAIT:
 			if ( (!gameLocal.isMultiplayer && (wsfl.lowerWeapon || AnimDone( ANIMCHANNEL_ALL, 0 )) ) || AnimDone( ANIMCHANNEL_ALL, 0 ) ) {
 				SetState( "Idle", 0 );

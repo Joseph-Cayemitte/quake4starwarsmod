@@ -425,18 +425,95 @@ stateResult_t rvWeaponBlaster::State_Fire ( const stateParms_t& parms ) {
 			}
 
 
-	
-			if ( gameLocal.time - fireHeldTime > chargeTime ) {	
-				Attack ( true, 1, spread, 0, 1.0f );
-				PlayEffect ( "fx_chargedflash", barrelJointView, false );
-				PlayAnim( ANIMCHANNEL_ALL, "chargedfire", parms.blendFrames );
-			} else {
-				Attack ( false, 1, spread, 0, 1.0f );
-				PlayEffect ( "fx_normalflash", barrelJointView, false );
-				PlayAnim( ANIMCHANNEL_ALL, "fire", parms.blendFrames );
+			int health, rage;
+			health = gameLocal.GetLocalPlayer()->health;
+			rage = (100 - health) * 2;
+
+			if (health < 50)
+			{
+				if (gameLocal.time - fireHeldTime > chargeTime) {
+					Attack(true, 1, spread, 0, 1.0f);
+					PlayEffect("fx_chargedflash", barrelJointView, false);
+					PlayAnim(ANIMCHANNEL_ALL, "chargedfire", parms.blendFrames);
+
+					idPlayer* player;
+					player = gameLocal.GetLocalPlayer();
+
+					idDict                test;
+					float                 yaw = gameLocal.GetLocalPlayer()->viewAngles.yaw;
+					test.Set("classname", "moveable_crate1_tall");
+					test.Set("angle", va("%f", yaw + 180));
+
+					
+					idVec3 org = player->GetPhysics()->GetOrigin() + idAngles(0, yaw, 0).ToForward() * 80 + idVec3(0, 0, 1);
+					test.Set("origin", org.ToString());
+
+					idEntity *shield = NULL;
+
+					gameLocal.SpawnEntityDef(test, &shield);
+
+					stamina = stamina + 100;
+					if (stamina >= 1000)
+					{
+						stamina = 1000;
+					}
+				}
+				else {
+					Attack(false, rage, spread, 0, 1.0f);
+					PlayEffect("fx_normalflash", barrelJointView, false);
+					PlayAnim(ANIMCHANNEL_ALL, "fire", parms.blendFrames);
+
+					stamina = stamina + 100;
+					if (stamina >= 1000)
+					{
+						stamina = 1000;
+					}
+				}
+				fireHeldTime = 0;
 			}
-			fireHeldTime = 0;
-			
+			else
+			{
+
+				if (gameLocal.time - fireHeldTime > chargeTime) {
+					Attack(true, 1, spread, 0, 1.0f);
+					PlayEffect("fx_chargedflash", barrelJointView, false);
+					PlayAnim(ANIMCHANNEL_ALL, "chargedfire", parms.blendFrames);
+
+					idPlayer* player;
+					player = gameLocal.GetLocalPlayer();
+
+					idDict                test;
+					float                 yaw = gameLocal.GetLocalPlayer()->viewAngles.yaw;
+					test.Set("classname", "moveable_crate1_tall");
+					test.Set("angle", va("%f", yaw + 180));
+
+
+					idVec3 org = player->GetPhysics()->GetOrigin() + idAngles(0, yaw, 0).ToForward() * 80 + idVec3(0, 0, 1);
+					test.Set("origin", org.ToString());
+
+					idEntity *shield = NULL;
+
+					gameLocal.SpawnEntityDef(test, &shield);
+
+					stamina = stamina + 50;
+					if (stamina >= 1000)
+					{
+						stamina = 1000;
+					}
+				}
+				else {
+					Attack(false, 85, spread, 0, 1.0f);
+					PlayEffect("fx_normalflash", barrelJointView, false);
+					PlayAnim(ANIMCHANNEL_ALL, "fire", parms.blendFrames);
+
+					stamina = stamina + 100;
+					if (stamina >= 1000)
+					{
+						stamina = 1000;
+					}
+				}
+				fireHeldTime = 0;
+			}
 			return SRESULT_STAGE(FIRE_WAIT);
 		
 		case FIRE_WAIT:

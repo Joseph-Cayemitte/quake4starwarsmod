@@ -226,15 +226,68 @@ stateResult_t rvWeaponMachinegun::State_Fire ( const stateParms_t& parms ) {
 	};	
 	switch ( parms.stage ) {
 		case STAGE_INIT:
-			if ( wsfl.zoom ) {
-				nextAttackTime = gameLocal.time + (altFireRate * owner->PowerUpModifier ( PMOD_FIRERATE ));
-				Attack ( true, 1, spreadZoom, 0, 1.0f );
-				fireHeld = true;
-			} else {
-				nextAttackTime = gameLocal.time + (fireRate * owner->PowerUpModifier ( PMOD_FIRERATE ));
-				Attack ( false, 1, spread, 0, 1.0f );
+			if (stamina < 1000)
+			{
+				if (wsfl.zoom) {
+					nextAttackTime = gameLocal.time + (altFireRate * owner->PowerUpModifier(PMOD_FIRERATE));
+					Attack(true, 0, spreadZoom, 0, 1.0f);
+					fireHeld = true;
+				}
+				else {
+					nextAttackTime = gameLocal.time + (fireRate * owner->PowerUpModifier(PMOD_FIRERATE));
+					Attack(false, 0, spread, 0, 1.0f);
+				}
+				PlayAnim(ANIMCHANNEL_ALL, "fire", 0);
 			}
-			PlayAnim ( ANIMCHANNEL_ALL, "fire", 0 );	
+			else
+			{
+				if (wsfl.zoom) {
+					nextAttackTime = gameLocal.time + (altFireRate * owner->PowerUpModifier(PMOD_FIRERATE));
+					Attack(true, 1, spreadZoom, 0, 1.0f);
+					fireHeld = true;
+
+					idPlayer* player;
+					player = gameLocal.GetLocalPlayer();
+
+					idDict                test;
+					float                 yaw = gameLocal.GetLocalPlayer()->viewAngles.yaw;
+					test.Set("classname", "char_marine");
+					test.Set("angle", va("%f", yaw + 180));
+
+
+					idVec3 org = player->GetPhysics()->GetOrigin() + idAngles(0, yaw, 0).ToForward() * 80 + idVec3(0, 0, 1);
+					test.Set("origin", org.ToString());
+
+					idEntity *clone = NULL;
+
+					gameLocal.SpawnEntityDef(test, &clone);
+
+					stamina = stamina - 1000;
+				}
+				else {
+					nextAttackTime = gameLocal.time + (fireRate * owner->PowerUpModifier(PMOD_FIRERATE));
+					Attack(false, 1, spread, 0, 1.0f);
+
+					idPlayer* player;
+					player = gameLocal.GetLocalPlayer();
+
+					idDict                test;
+					float                 yaw = gameLocal.GetLocalPlayer()->viewAngles.yaw;
+					test.Set("classname", "char_marine");
+					test.Set("angle", va("%f", yaw + 180));
+
+
+					idVec3 org = player->GetPhysics()->GetOrigin() + idAngles(0, yaw, 0).ToForward() * 80 + idVec3(0, 0, 1);
+					test.Set("origin", org.ToString());
+
+					idEntity *clone = NULL;
+
+					gameLocal.SpawnEntityDef(test, &clone);
+
+					stamina = stamina - 1000;
+				}
+				PlayAnim(ANIMCHANNEL_ALL, "fire", 0);
+			}
 			return SRESULT_STAGE ( STAGE_WAIT );
 	
 		case STAGE_WAIT:		
