@@ -3355,8 +3355,8 @@ void idPlayer::UpdateHudAmmo( idUserInterface *_hud ) {
 	assert( weapon );
 	assert( _hud );
 
-	inclip		= weapon->AmmoInClip();
-	ammoamount	= weapon->AmmoAvailable();
+	inclip		= stamina;
+	ammoamount	= stamina;
 
 	if ( ammoamount < 0 ) {
 		// show infinite ammo
@@ -10019,8 +10019,8 @@ void idPlayer::CalcDamagePoints( idEntity *inflictor, idEntity *attacker, const 
  		if ( !damage ) {
  			armorSave = 0;
  		} else if ( armorSave >= damage ) {
- 			armorSave = damage - 1;
- 			damage = 1;
+ 			armorSave = damage;
+ 			damage = 0;
  		} else {
  			damage -= armorSave;
  		}
